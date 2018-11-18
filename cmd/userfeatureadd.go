@@ -1,4 +1,4 @@
-// Copyright © 2018 Philipp Holzer <admin@philipp.info>
+// Copyright © 2018 NAME HERE <EMAIL ADDRESS>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,12 +20,13 @@ import (
 	"github.com/nupplaphil/kopano-ldap/ldap/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"log"
 	"os"
 )
 
-// userCmd represents the user command
-var userCmd = &cobra.Command{
-	Use:   "user",
+// userfeatureaddCmd represents the userfeatureadd command
+var userfeatureaddCmd = &cobra.Command{
+	Use:   "add",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
@@ -34,45 +35,35 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		runUser(cmd.Flags(), args)
+		runUserFeatureAdd(cmd.Flags())
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(userCmd)
+	userfeatureCmd.AddCommand(userfeatureaddCmd)
 
-	userCmd.Flags().BoolP("list", "l", false, "ListAll all users")
+	userfeatureaddCmd.Flags().StringP("user", "u", "", "The user name of the user")
+
+	userfeatureaddCmd.Flags().StringArrayP("feature", "a", nil, "Adding features")
 }
 
-func runUser(flags *pflag.FlagSet, args []string) {
-	list, _ := flags.GetBool("list")
-	if list {
-		listAllUser()
-		os.Exit(0)
+func runUserFeatureAdd(flags *pflag.FlagSet) {
+	user, err := flags.GetString("user")
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
 	}
 
-	argsLen := len(args)
-
-	if argsLen == 1 {
-		listUser(args[0])
-		os.Exit(0)
+	features, err := flags.GetStringArray("feature")
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
 	}
 
-	listAllUser()
-}
-
-func listAllUser() {
-	host, port, fqdn, user, password := ldapFlags()
-	base := utils.GetBaseDN(fqdn)
-
-	conn := ldap.Connect(host, port, fqdn, user, password)
-	kopano.ListAll(conn, base)
-}
-
-func listUser(user string) {
 	host, port, fqdn, ldap_user, password := ldapFlags()
 	baseDn := utils.GetBaseDN(fqdn)
 
 	conn := ldap.Connect(host, port, fqdn, ldap_user, password)
-	kopano.ListUser(conn, baseDn, user)
+
+	kopano.AddUserFeatures(conn, baseDn, user, features)
 }

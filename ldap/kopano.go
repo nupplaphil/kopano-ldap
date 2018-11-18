@@ -1,18 +1,29 @@
 package ldap
 
 import (
+	"bytes"
 	"fmt"
+	"github.com/nupplaphil/kopano-ldap/ldap/utils"
 	"gopkg.in/ldap.v2"
 	"log"
 )
 
-func Connect() *ldap.Conn {
-	l, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", "192.168.99.100", 389))
+func Connect(host string, port int, fqdn, user, password string) *ldap.Conn {
+
+	baseDn := utils.GetBaseDN(fqdn)
+
+	l, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", host, port))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = l.Bind("cn=admin,dc=example,dc=org", "admin")
+	var b bytes.Buffer
+	b.WriteString("cn=")
+	b.WriteString(user)
+	b.WriteString(",")
+	b.WriteString(baseDn)
+
+	err = l.Bind(b.String(), password)
 	if err != nil {
 		log.Fatal(err)
 	}
