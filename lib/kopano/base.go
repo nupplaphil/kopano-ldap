@@ -1,9 +1,9 @@
-package ldap
+package kopano
 
 import (
 	"bytes"
 	"fmt"
-	"github.com/nupplaphil/kopano-ldap/ldap/utils"
+	"github.com/nupplaphil/kopano-ldap/lib/utils"
 	"gopkg.in/ldap.v2"
 	"log"
 )

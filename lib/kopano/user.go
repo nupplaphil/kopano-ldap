@@ -3,7 +3,7 @@ package kopano
 import (
 	"bytes"
 	"fmt"
-	"github.com/nupplaphil/kopano-ldap/ldap/utils"
+	"github.com/nupplaphil/kopano-ldap/lib/utils"
 	"gopkg.in/ldap.v2"
 	"log"
 	"os"
@@ -43,7 +43,7 @@ func ListAll(l *ldap.Conn, baseDn string) {
 
 		b.WriteString(entry.GetAttributeValue("uid"))
 		b.WriteString("\t ")
-		b.WriteString(utils.LdapBool(entry.GetAttributeValue("kopanoAccount")))
+		b.WriteString(utils.LdapBoolToStr(entry.GetAttributeValue("kopanoAccount")))
 		b.WriteString("\t ")
 		b.WriteString(entry.GetAttributeValue("cn"))
 		b.WriteString("\t ")
@@ -82,8 +82,8 @@ func ListUser(l *ldap.Conn, baseDn, user string) {
 	fmt.Fprintln(w, fmt.Sprintf("Name:\t %s", entry.GetAttributeValue("uid")))
 	fmt.Fprintln(w, fmt.Sprintf("Full name:\t %s", entry.GetAttributeValue("cn")))
 	fmt.Fprintln(w, fmt.Sprintf("Email address:\t %s", entry.GetAttributeValue("mail")))
-	fmt.Fprintln(w, fmt.Sprintf("Active:\t %s", utils.LdapBool(entry.GetAttributeValue("kopanoAccount"))))
-	fmt.Fprintln(w, fmt.Sprintf("Administrator:\t %s", utils.LdapBool(entry.GetAttributeValue("kopanoAdmin"))))
+	fmt.Fprintln(w, fmt.Sprintf("Active:\t %s", utils.LdapBoolToStr(entry.GetAttributeValue("kopanoAccount"))))
+	fmt.Fprintln(w, fmt.Sprintf("Administrator:\t %s", utils.LdapBoolToStr(entry.GetAttributeValue("kopanoAdmin"))))
 	fmt.Fprintln(w, fmt.Sprintf("Features Enabled:\t %s", utils.LdapArrayToStr(entry.GetAttributeValues("kopanoEnabledFeatures"), ";")))
 	fmt.Fprintln(w, fmt.Sprintf("Features Disabled:\t %s", utils.LdapArrayToStr(entry.GetAttributeValues("kopanoDisabledFeatures"), ";")))
 	w.Flush()
