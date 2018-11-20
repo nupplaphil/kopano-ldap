@@ -50,14 +50,14 @@ func listAllUser() {
 	host, port, fqdn, user, password := LdapFlags()
 	base := utils.GetBaseDN(fqdn)
 
-	conn := kopano.Connect(host, port, fqdn, user, password)
-	kopano.ListAll(conn, base)
+	client := kopano.Connect(host, port, fqdn, user, password)
+	kopano.ListAll(client, base)
 }
 
 func listUser(user string) {
 	host, port, fqdn, ldap_user, password := LdapFlags()
 	baseDn := utils.GetBaseDN(fqdn)
 
-	conn := kopano.Connect(host, port, fqdn, ldap_user, password)
-	kopano.ListUser(conn, baseDn, user)
+	client := kopano.Connect(host, port, fqdn, ldap_user, password)
+	kopano.ListUser(client, baseDn, user)
 }

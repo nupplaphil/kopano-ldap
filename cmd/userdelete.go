@@ -35,7 +35,7 @@ func runUserDelete(flags *pflag.FlagSet) {
 	host, port, fqdn, user, password := LdapFlags()
 	baseDn := utils.GetBaseDN(fqdn)
 
-	conn := kopano.Connect(host, port, fqdn, user, password)
+	client := kopano.Connect(host, port, fqdn, user, password)
 
 	user, err := flags.GetString("user")
 	if err != nil {
@@ -43,5 +43,5 @@ func runUserDelete(flags *pflag.FlagSet) {
 		os.Exit(1)
 	}
 
-	kopano.Del(conn, baseDn, user)
+	kopano.Del(client, baseDn, user)
 }

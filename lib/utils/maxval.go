@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func GetNextIDs(conn *ldap.Conn) (int, int) {
+func GetNextIDs(client ldap.Client) (int, int) {
 	searchRequest := ldap.NewSearchRequest(
 		"dc=example,dc=org", // The base dn to search
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
@@ -15,7 +15,7 @@ func GetNextIDs(conn *ldap.Conn) (int, int) {
 		nil,
 	)
 
-	sr, err := conn.Search(searchRequest)
+	sr, err := client.Search(searchRequest)
 	if err != nil {
 		log.Fatal(err)
 	}

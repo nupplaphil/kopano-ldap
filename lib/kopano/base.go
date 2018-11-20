@@ -8,11 +8,11 @@ import (
 	"log"
 )
 
-func Connect(host string, port int, fqdn, user, password string) *ldap.Conn {
+func Connect(host string, port int, fqdn, user, password string) ldap.Client {
 
 	baseDn := utils.GetBaseDN(fqdn)
 
-	l, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", host, port))
+	conn, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", host, port))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -23,10 +23,10 @@ func Connect(host string, port int, fqdn, user, password string) *ldap.Conn {
 	b.WriteString(",")
 	b.WriteString(baseDn)
 
-	err = l.Bind(b.String(), password)
+	err = conn.Bind(b.String(), password)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return l
+	return conn
 }
