@@ -14,11 +14,11 @@ const (
 	MOBILE = "mobile"
 )
 
-func AddUserFeatures(l *ldap.Conn, baseDn, user string, features []string) {
-	defer l.Close()
+func AddUserFeatures(client ldap.Client, baseDn, user string, features []string) {
+	defer client.Close()
 
 	checkFeatures(features)
-	enabledFeatures, disabledFeatures := GetUserFeatures(l, baseDn, user)
+	enabledFeatures, disabledFeatures := GetUserFeatures(client, baseDn, user)
 
 	var modifyAddEnabled []string
 	var modifyRemDisabled []string
@@ -46,18 +46,18 @@ func AddUserFeatures(l *ldap.Conn, baseDn, user string, features []string) {
 		modify.Add("kopanoEnabledFeatures", modifyAddEnabled)
 	}
 
-	err := l.Modify(modify)
+	err := client.Modify(modify)
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(1)
 	}
 }
 
-func RemoveUserFeatures(l *ldap.Conn, baseDn, user string, features []string) {
-	defer l.Close()
+func RemoveUserFeatures(client ldap.Client, baseDn, user string, features []string) {
+	defer client.Close()
 
 	checkFeatures(features)
-	enabledFeatures, disabledFeatures := GetUserFeatures(l, baseDn, user)
+	enabledFeatures, disabledFeatures := GetUserFeatures(client, baseDn, user)
 
 	var modifyAddDisabled []string
 	var modifyRemEnabled []string
@@ -85,7 +85,7 @@ func RemoveUserFeatures(l *ldap.Conn, baseDn, user string, features []string) {
 		modify.Add("kopanoDisabledFeatures", modifyAddDisabled)
 	}
 
-	err := l.Modify(modify)
+	err := client.Modify(modify)
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(1)
@@ -107,7 +107,7 @@ func isValid(feature string) bool {
 		feature == MOBILE
 }
 
-func GetUserFeatures(l *ldap.Conn, baseDn, user string) ([]string, []string) {
+func GetUserFeatures(client ldap.Client, baseDn, user string) ([]string, []string) {
 
 	searchRequest := ldap.NewSearchRequest(
 		baseDn, // The base dn to search
@@ -117,7 +117,7 @@ func GetUserFeatures(l *ldap.Conn, baseDn, user string) ([]string, []string) {
 		nil,
 	)
 
-	sr, err := l.Search(searchRequest)
+	sr, err := client.Search(searchRequest)
 	if err != nil {
 		log.Fatal(err)
 	}

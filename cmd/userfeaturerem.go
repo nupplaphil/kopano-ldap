@@ -51,7 +51,7 @@ func runUserFeatureRemove(flags *pflag.FlagSet) {
 	host, port, fqdn, ldap_user, password := LdapFlags()
 	baseDn := utils.GetBaseDN(fqdn)
 
-	conn := kopano.Connect(host, port, fqdn, ldap_user, password)
+	client := kopano.Connect(host, port, fqdn, ldap_user, password)
 
-	kopano.RemoveUserFeatures(conn, baseDn, user, features)
+	kopano.RemoveUserFeatures(client, baseDn, user, features)
 }

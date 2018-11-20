@@ -19,8 +19,8 @@ type UserSettings struct {
 	Active   bool
 }
 
-func ListAll(l *ldap.Conn, baseDn string) {
-	defer l.Close()
+func ListAll(client ldap.Client, baseDn string) {
+	defer client.Close()
 
 	searchRequest := ldap.NewSearchRequest(
 		baseDn, // The base dn to search
@@ -30,7 +30,7 @@ func ListAll(l *ldap.Conn, baseDn string) {
 		nil,
 	)
 
-	sr, err := l.Search(searchRequest)
+	sr, err := client.Search(searchRequest)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -55,8 +55,8 @@ func ListAll(l *ldap.Conn, baseDn string) {
 	w.Flush()
 }
 
-func ListUser(l *ldap.Conn, baseDn, user string) {
-	defer l.Close()
+func ListUser(client ldap.Client, baseDn, user string) {
+	defer client.Close()
 
 	searchRequest := ldap.NewSearchRequest(
 		baseDn, // The base dn to search
@@ -66,7 +66,7 @@ func ListUser(l *ldap.Conn, baseDn, user string) {
 		nil,
 	)
 
-	sr, err := l.Search(searchRequest)
+	sr, err := client.Search(searchRequest)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -95,10 +95,10 @@ func NewUserSettings(user string) *UserSettings {
 	}
 }
 
-func Add(l *ldap.Conn, baseDn string, settings *UserSettings) {
-	defer l.Close()
+func Add(client ldap.Client, baseDn string, settings *UserSettings) {
+	defer client.Close()
 
-	uidNumber, gidNumber := utils.GetNextIDs(l)
+	uidNumber, gidNumber := utils.GetNextIDs(client)
 
 	addRequest := ldap.NewAddRequest(fmt.Sprintf("uid=%s,%s", settings.User, baseDn))
 
@@ -122,19 +122,19 @@ func Add(l *ldap.Conn, baseDn string, settings *UserSettings) {
 	addRequest.Attribute("kopanoEnabledFeatures", []string{MOBILE})
 	addRequest.Attribute("kopanoDisabledFeatures", []string{IMAP, POP3})
 
-	err := l.Add(addRequest)
+	err := client.Add(addRequest)
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(1)
 	}
 }
 
-func Del(l *ldap.Conn, baseDn, user string) {
-	defer l.Close()
+func Del(client ldap.Client, baseDn, user string) {
+	defer client.Close()
 
 	delRequest := ldap.NewDelRequest(fmt.Sprintf("uid=%s,%s", user, baseDn), nil)
 
-	err := l.Del(delRequest)
+	err := client.Del(delRequest)
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(1)

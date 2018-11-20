@@ -82,7 +82,7 @@ func runUserCreate(flags *pflag.FlagSet) {
 	host, port, fqdn, user, password := LdapFlags()
 	baseDn := utils.GetBaseDN(fqdn)
 
-	conn := kopano.Connect(host, port, fqdn, user, password)
+	client := kopano.Connect(host, port, fqdn, user, password)
 
-	kopano.Add(conn, baseDn, userSettings)
+	kopano.Add(client, baseDn, userSettings)
 }
