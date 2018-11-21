@@ -154,7 +154,7 @@ func TestListUser(t *testing.T) {
 		client.On("Search", &searchRequest).Return(&test.result, test.searchErr).Once()
 		client.On("Close").Once()
 
-		err := ListUser(client, "example.org", test.user)
+		err := ListUser(client, test.baseDn, test.user)
 		assert.Equal(t, err, test.error)
 	}
 }
