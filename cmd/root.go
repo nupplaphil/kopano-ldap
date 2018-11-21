@@ -81,8 +81,8 @@ func LdapFlags() (string, int, string, string, string) {
 	viper.SetEnvPrefix("LDAP")
 	viper.AutomaticEnv()
 
-	ldapHost := viper.GetString("ldapHost")
-	ldapPort := viper.GetInt("ldapPort")
+	ldapHost := viper.GetString("host")
+	ldapPort := viper.GetInt("port")
 	ldapDomain := viper.GetString("domain")
 	ldapUser := viper.GetString("admin_user")
 	ldapPW := viper.GetString("admin_password")
