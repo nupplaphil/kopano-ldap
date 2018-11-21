@@ -20,8 +20,8 @@ The tool can be used to get more information about users and groups too.
 All available users or groups can be displayed by using the following commands:
 
 ```bash
-kopano-ld user --list
-kopano-ld group --list
+> kopano-ld user --list
+> kopano-ld group --list
 ```
 
 ## Users
@@ -30,7 +30,7 @@ kopano-ld group --list
 
 To display more information of a specific user, use:
 ```bash
-kopano-ld user john
+> kopano-ld user john
 Name:                     johndoe
 Full name:                John Doe
 Email address:            john@doe.com
@@ -51,7 +51,7 @@ TO BE DEFINED (TODO)
 To create a new user, use the following command:
 
 ```bash
-kopano-ld user create --user <user name> \
+> kopano-ld user create --user <user name> \
                       --password <password> \
                       --email <email> \
                       --fullname <full name> \
@@ -82,7 +82,7 @@ TO BE DEFINED (TODO)
 To delete a user from LDAP, use the following command:
 
 ```bash
-kopano-ld user delete --user <user name>
+> kopano-ld user delete --user <user name>
 ```
 
 The user will be deleted from LDAP. However the store will be kept in the database.
@@ -125,8 +125,8 @@ see [8.7.1. Globally enabling features](https://documentation.kopano.io/kopanoco
 Managing the feature per user in LDAP, the `kopano-ld` tool has to be used to control the features:
 
 ```bash
-kopano-ld user feature add --user john --add imap
-kopano-ld user feature rem --user john --rem mobile
+> kopano-ld user feature add --user john --add imap
+> kopano-ld user feature rem --user john --rem mobile
 ``` 
 
 In LDAP, the features will be managed from the two attributes `kopanoEnabledFeatures` and `kopanoDisabledFeatures`.
