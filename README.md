@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.com/nupplaphil/kopano-ldap.svg?branch=master)](https://travis-ci.com/nupplaphil/kopano-ldap)
+[![codecov](https://codecov.io/gh/nupplaphil/kopano-ldap/branch/master/graph/badge.svg)](https://codecov.io/gh/nupplaphil/kopano-ldap)
 [![Go Report Card](https://goreportcard.com/badge/github.com/nupplaphil/kopano-ldap)](https://goreportcard.com/report/github.com/nupplaphil/kopano-ldap)
 
 # LDAP Command Line Interface for Kopano
