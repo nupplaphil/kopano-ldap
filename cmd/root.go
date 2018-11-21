@@ -35,7 +35,7 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.kopano-lib.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.kopano-kopano.yaml)")
 
 	rootCmd.PersistentFlags().String("ldaphost", "localhost", "LDAP host")
 	rootCmd.PersistentFlags().Int("ldapport", 389, "LDAP port")
@@ -63,9 +63,9 @@ func initConfig() {
 			os.Exit(1)
 		}
 
-		// Search config in home directory with name ".kopano-lib" (without extension).
+		// Search config in home directory with name ".kopano-kopano" (without extension).
 		viper.AddConfigPath(home)
-		viper.SetConfigName(".kopano-lib")
+		viper.SetConfigName(".kopano-kopano")
 	}
 
 	viper.SetEnvPrefix("LDAP")
@@ -81,11 +81,11 @@ func LdapFlags() (string, int, string, string, string) {
 	viper.SetEnvPrefix("LDAP")
 	viper.AutomaticEnv()
 
-	host := viper.GetString("host")
-	port := viper.GetInt("port")
-	fqdn := viper.GetString("domain")
-	user := viper.GetString("admin_user")
-	password := viper.GetString("admin_password")
+	ldapHost := viper.GetString("ldapHost")
+	ldapPort := viper.GetInt("ldapPort")
+	ldapDomain := viper.GetString("domain")
+	ldapUser := viper.GetString("admin_user")
+	ldapPW := viper.GetString("admin_password")
 
-	return host, port, fqdn, user, password
+	return ldapHost, ldapPort, ldapDomain, ldapUser, ldapPW
 }

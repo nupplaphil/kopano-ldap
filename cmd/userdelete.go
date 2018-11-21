@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	"github.com/nupplaphil/kopano-ldap/lib/kopano"
-	"github.com/nupplaphil/kopano-ldap/lib/utils"
+	"github.com/nupplaphil/kopano-ldap/kopano"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"log"
@@ -32,10 +31,14 @@ func init() {
 }
 
 func runUserDelete(flags *pflag.FlagSet) {
-	host, port, fqdn, user, password := LdapFlags()
-	baseDn := utils.GetBaseDN(fqdn)
+	ldapHost, ldapPort, ldapDomain, ldapUser, ldapPW := LdapFlags()
+	baseDn := kopano.GetBaseDN(ldapDomain)
 
-	client := kopano.Connect(host, port, fqdn, user, password)
+	client, err := kopano.Connect(ldapHost, ldapPort, ldapDomain, ldapUser, ldapPW)
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
 
 	user, err := flags.GetString("user")
 	if err != nil {
