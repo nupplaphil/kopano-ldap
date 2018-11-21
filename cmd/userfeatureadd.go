@@ -11,13 +11,8 @@ import (
 // userfeatureaddCmd represents the userfeatureadd command
 var userfeatureaddCmd = &cobra.Command{
 	Use:   "add",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Adding a new feature to an user in Kopano.",
+	Long:  `Adding a new feature to an user in Kopano.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		runUserFeatureAdd(cmd.Flags())
 	},
@@ -26,9 +21,10 @@ to quickly create a Cobra application.`,
 func init() {
 	userfeatureCmd.AddCommand(userfeatureaddCmd)
 
-	userfeatureaddCmd.Flags().StringArrayP("feature", "a", nil, "Adding features")
+	userfeatureaddCmd.Flags().StringArrayP("feature", "a", nil, "Adding one or more features (imap, pop3 or mobile)")
+	userfeatureaddCmd.MarkFlagRequired("feature")
 
-	userfeatureaddCmd.Flags().StringP("user", "u", "", "The user name of the user")
+	userfeatureaddCmd.Flags().StringP("user", "u", "", "The name of the user. With this name the user will log on to the store.")
 	userfeatureaddCmd.MarkFlagRequired("user")
 }
 

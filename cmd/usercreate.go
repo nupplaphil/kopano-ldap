@@ -11,13 +11,8 @@ import (
 // usercreateCmd represents the usercreate command
 var usercreateCmd = &cobra.Command{
 	Use:   "create",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Creating an user for Kopano in LDAP.",
+	Long:  `Creating an user for Kopano in LDAP.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		runUserCreate(cmd.Flags())
 	},
@@ -26,11 +21,11 @@ to quickly create a Cobra application.`,
 func init() {
 	UserCmd.AddCommand(usercreateCmd)
 
-	usercreateCmd.Flags().StringP("user", "u", "", "The user name of the user")
-	usercreateCmd.Flags().StringP("fullname", "", "", "The full name of the user")
-	usercreateCmd.Flags().StringArray("email", nil, "The email address of the user (The first one is the main address)")
-	usercreateCmd.Flags().StringP("password", "p", "", "The password of the user")
-	usercreateCmd.Flags().BoolP("active", "a", true, "The active state of the user")
+	usercreateCmd.Flags().StringP("user", "u", "", "The name of the user. With this name the user will log on to the store.")
+	usercreateCmd.Flags().StringP("fullname", "", "", "The full name of the user.")
+	usercreateCmd.Flags().StringArray("email", nil, "The email address of the user. Often this is '<user name>@<email domain>'. You can define more than one email address, which will be set as an alias for this user")
+	usercreateCmd.Flags().StringP("password", "p", "", "The password in plain text. The password will be stored encrypted in LDAP.")
+	usercreateCmd.Flags().BoolP("active", "a", true, "The active state of this user. If set to 'yes' (or not set), the user is able to login, otherwise 'no'")
 	usercreateCmd.MarkFlagRequired("user")
 	usercreateCmd.MarkFlagRequired("fullname")
 	usercreateCmd.MarkFlagRequired("email")

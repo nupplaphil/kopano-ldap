@@ -12,13 +12,8 @@ import (
 // userfeatureremCmd represents the userfeaturerem command
 var userfeatureremCmd = &cobra.Command{
 	Use:   "remove",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Removing a feature of an user in Kopano.",
+	Long:  `Removing a feature of an user in Kopano.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		runUserFeatureRemove(cmd.Flags())
 	},
@@ -28,10 +23,11 @@ to quickly create a Cobra application.`,
 func init() {
 	userfeatureCmd.AddCommand(userfeatureremCmd)
 
-	userfeatureremCmd.Flags().StringP("user", "u", "", "The user name of the user")
-	userfeatureaddCmd.MarkFlagRequired("user")
+	userfeatureremCmd.Flags().StringArrayP("feature", "a", nil, "Removing one or more features (imap, pop3 or mobile)")
+	userfeatureaddCmd.MarkFlagRequired("feature")
 
-	userfeatureremCmd.Flags().StringArrayP("feature", "a", nil, "Adding features")
+	userfeatureremCmd.Flags().StringP("user", "u", "", "The name of the user. With this name the user will log on to the store.")
+	userfeatureaddCmd.MarkFlagRequired("user")
 }
 
 func runUserFeatureRemove(flags *pflag.FlagSet) {

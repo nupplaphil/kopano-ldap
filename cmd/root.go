@@ -14,13 +14,10 @@ var cfgFile string
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "kopano-ld",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+	Short: "This CLI is built for the LDAP User Management of Kopano.",
+	Long: `The kopano-ld is an administration tool for managing user and groups in LDAP.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+The tool can be used to get more information about users and groups too.`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -77,6 +74,7 @@ func initConfig() {
 	}
 }
 
+// LdapFlags returns all LDAP properties based on either parameters or environment variables
 func LdapFlags() (string, int, string, string, string) {
 	viper.SetEnvPrefix("LDAP")
 	viper.AutomaticEnv()
