@@ -38,7 +38,7 @@ func init() {
 	rootCmd.PersistentFlags().Int("ldapport", 389, "LDAP port")
 	rootCmd.PersistentFlags().StringP("domain", "b", "example.org", "LDAP Base domain")
 	rootCmd.PersistentFlags().String("ldapuser", "admin", "LDAP user")
-	rootCmd.PersistentFlags().String("ldappass", "", "LDAP password")
+	rootCmd.PersistentFlags().String("ldappass", "admin", "LDAP password")
 
 	viper.BindPFlag("host", rootCmd.PersistentFlags().Lookup("ldaphost"))
 	viper.BindPFlag("port", rootCmd.PersistentFlags().Lookup("ldapport"))
