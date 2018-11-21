@@ -17,11 +17,11 @@ func TestListAll(t *testing.T) {
 		"testNormal": {
 			"example.org",
 			map[string][]string{
-				"uid":           {"philipp7"},
+				"uid":           {"johnedoe7"},
 				"kopanoAccount": {"1"},
-				"cn":            {"Philipp Holzer"},
-				"mail":          {"philipp@dieholzers.at"},
-				"kopanoAliases": {"admin@philipp.info", "test@example.org"},
+				"cn":            {"John Doe"},
+				"mail":          {"john@doe.com"},
+				"kopanoAliases": {"john.d@doe.com", "test@example.org"},
 			},
 			nil,
 		},
@@ -32,8 +32,8 @@ func TestListAll(t *testing.T) {
 				"kopanoAccount": {"0"},
 				"kopanoAdmin  ": {"1"},
 				"cn":            {""},
-				"mail":          {"@dieholzers.at"},
-				"kopanoAliases": {"admin@philipp.info"},
+				"mail":          {"@doe.com"},
+				"kopanoAliases": {"john@doe.com"},
 			},
 			nil,
 		},
@@ -44,8 +44,8 @@ func TestListAll(t *testing.T) {
 				"kopanoAccount": {"0"},
 				"kopanoAdmin  ": {"1"},
 				"cn":            {""},
-				"mail":          {"@dieholzers.at"},
-				"kopanoAliases": {"admin@philipp.info"},
+				"mail":          {"@doe.com"},
+				"kopanoAliases": {"john@doe.com"},
 			},
 			fmt.Errorf("an expected error"),
 		},
@@ -74,7 +74,7 @@ func TestListAll(t *testing.T) {
 		client.On("Search", &searchRequest).Return(&searchResult, test.error).Once()
 		client.On("Close").Once()
 
-		err := ListAll(client, "example.org")
+		err := ListAll(client, test.baseDn)
 		assert.Equal(t, err, test.error)
 	}
 }
@@ -88,13 +88,13 @@ func TestListUser(t *testing.T) {
 		error     error
 	}{
 		"testNormal": {
-			"example.org",
-			"philipp7",
+			"dc=example,dc=org",
+			"johndoe7",
 			ldap.SearchResult{
 				Entries: []*ldap.Entry{ldap.NewEntry("test", map[string][]string{
-					"uid":                    {"philipp7"},
-					"cn":                     {"Philipp Holzer"},
-					"mail":                   {"philipp@dieholzers.at"},
+					"uid":                    {"johndoe7"},
+					"cn":                     {"John Doe"},
+					"mail":                   {"john@doe.com"},
 					"kopanoAccount":          {"1"},
 					"kopanoAdmin":            {"1"},
 					"kopanoEnabledFeatures":  {"imap; mobile"},
@@ -108,13 +108,13 @@ func TestListUser(t *testing.T) {
 			nil,
 		},
 		"testSearchError": {
-			"example.org",
-			"philipp7",
+			"dc=example,dc=org",
+			"johndoe7",
 			ldap.SearchResult{
 				Entries: []*ldap.Entry{ldap.NewEntry("test", map[string][]string{
-					"uid":                    {"philipp7"},
-					"cn":                     {"Philipp Holzer"},
-					"mail":                   {"philipp@dieholzers.at"},
+					"uid":                    {"johndoe7"},
+					"cn":                     {"John Doe"},
+					"mail":                   {"john@doe.com"},
 					"kopanoAccount":          {"1"},
 					"kopanoAdmin":            {"1"},
 					"kopanoEnabledFeatures":  {"imap; mobile"},
@@ -127,13 +127,13 @@ func TestListUser(t *testing.T) {
 			fmt.Errorf("an expected error"),
 		},
 		"testNoEntries": {
-			"example.org",
-			"philipp6",
+			"dc=example,dc=org",
+			"johndoe6",
 			ldap.SearchResult{
 				Entries: nil,
 			},
 			nil,
-			fmt.Errorf("no user with uid \"philipp6\""),
+			fmt.Errorf("no user with uid \"johndoe6\""),
 		},
 	}
 
@@ -154,7 +154,7 @@ func TestListUser(t *testing.T) {
 		client.On("Search", &searchRequest).Return(&test.result, test.searchErr).Once()
 		client.On("Close").Once()
 
-		err := ListUser(client, "example.org", test.user)
+		err := ListUser(client, test.baseDn, test.user)
 		assert.Equal(t, err, test.error)
 	}
 }

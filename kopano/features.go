@@ -15,7 +15,11 @@ const (
 func AddUserFeatures(client ldap.Client, baseDn, user string, features []string) error {
 	defer client.Close()
 
-	checkFeatures(features)
+	err := checkFeatures(features)
+	if err != nil {
+		return err
+	}
+
 	enabledFeatures, disabledFeatures, err := GetUserFeatures(client, baseDn, user)
 	if err != nil {
 		return err
@@ -58,7 +62,11 @@ func AddUserFeatures(client ldap.Client, baseDn, user string, features []string)
 func RemoveUserFeatures(client ldap.Client, baseDn, user string, features []string) error {
 	defer client.Close()
 
-	checkFeatures(features)
+	err := checkFeatures(features)
+	if err != nil {
+		return err
+	}
+
 	enabledFeatures, disabledFeatures, err := GetUserFeatures(client, baseDn, user)
 	if err != nil {
 		return err
@@ -130,7 +138,7 @@ func GetUserFeatures(client ldap.Client, baseDn, user string) ([]string, []strin
 	}
 
 	if len(sr.Entries) != 1 {
-		return nil, nil, fmt.Errorf("no user with uid '%q' found", user)
+		return nil, nil, fmt.Errorf("no user with uid %q found", user)
 	}
 
 	entry := sr.Entries[0]
