@@ -8,6 +8,7 @@ import (
 	"text/tabwriter"
 )
 
+// UserSettings for an new user or to modify an user
 type UserSettings struct {
 	User     string
 	Fullname string
@@ -17,6 +18,7 @@ type UserSettings struct {
 	Active   bool
 }
 
+// ListAll lists all users for the given base DN
 func ListAll(client ldap.Client, baseDn string) error {
 	defer client.Close()
 
@@ -55,6 +57,7 @@ func ListAll(client ldap.Client, baseDn string) error {
 	return nil
 }
 
+// ListUser lists details of the given user for a given base DN
 func ListUser(client ldap.Client, baseDn, user string) error {
 	defer client.Close()
 
@@ -90,12 +93,14 @@ func ListUser(client ldap.Client, baseDn, user string) error {
 	return nil
 }
 
+// NewUserSettings creates a new UserSettings attribute for modifying or creating an user
 func NewUserSettings(user string) *UserSettings {
 	return &UserSettings{
 		User: user,
 	}
 }
 
+// Add creates a new user with the given settings
 func Add(client ldap.Client, baseDn string, settings *UserSettings) error {
 	defer client.Close()
 
@@ -134,6 +139,7 @@ func Add(client ldap.Client, baseDn string, settings *UserSettings) error {
 	return nil
 }
 
+// Del deletes an user
 func Del(client ldap.Client, baseDn, user string) error {
 	defer client.Close()
 

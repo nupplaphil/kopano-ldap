@@ -7,11 +7,16 @@ import (
 )
 
 const (
-	IMAP   = "imap"
-	POP3   = "pop3"
+	// IMAP feature of Kopano
+	IMAP = "imap"
+	// POP3 feature of Kopano
+	POP3 = "pop3"
+	// Mobile feature of Kopano
 	MOBILE = "mobile"
 )
 
+// AddUserFeatures adds new features to an specific user.
+// It will automatically remove these features from the disabled features
 func AddUserFeatures(client ldap.Client, baseDn, user string, features []string) error {
 	defer client.Close()
 
@@ -59,6 +64,8 @@ func AddUserFeatures(client ldap.Client, baseDn, user string, features []string)
 	return nil
 }
 
+// RemoveUserFeatures removes features from an specific user.
+// It will automatically remove these features from the enabled features
 func RemoveUserFeatures(client ldap.Client, baseDn, user string, features []string) error {
 	defer client.Close()
 
@@ -106,6 +113,7 @@ func RemoveUserFeatures(client ldap.Client, baseDn, user string, features []stri
 	return nil
 }
 
+// checkFeatures checks a list of features if they are valid
 func checkFeatures(features []string) error {
 	for i := range features {
 		if !isValid(features[i]) {
@@ -116,12 +124,14 @@ func checkFeatures(features []string) error {
 	return nil
 }
 
+// isValid checks, if a given feature is valid
 func isValid(feature string) bool {
 	return feature == IMAP ||
 		feature == POP3 ||
 		feature == MOBILE
 }
 
+// GetUserFeatures returns all enabled and disabled features of an user
 func GetUserFeatures(client ldap.Client, baseDn, user string) ([]string, []string, error) {
 
 	searchRequest := ldap.NewSearchRequest(
@@ -146,6 +156,7 @@ func GetUserFeatures(client ldap.Client, baseDn, user string) ([]string, []strin
 	return entry.GetAttributeValues("kopanoEnabledFeatures"), entry.GetAttributeValues("kopanoDisabledFeatures"), nil
 }
 
+// findFeatureInFeatures checks if the given feature is in a list of features
 func findFeatureInFeatures(feature string, features []string) bool {
 	sort.Strings(features)
 

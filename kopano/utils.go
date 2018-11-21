@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+// GetNextIDs returns the next valid UID or GID for the given base DN
 func GetNextIDs(client ldap.Client, baseDn string) (int, int, error) {
 	searchRequest := ldap.NewSearchRequest(
 		baseDn,
@@ -52,7 +53,7 @@ func GetNextIDs(client ldap.Client, baseDn string) (int, int, error) {
 	return uidNumber, gidNumber, nil
 }
 
-// Returns either "yes" or "no"
+// LdapBoolToStr returns either "yes" or "no"
 // "yes" if anything except "0" or "" is given
 // "no" if "0" or "" is given
 func LdapBoolToStr(value string) string {
@@ -63,7 +64,7 @@ func LdapBoolToStr(value string) string {
 	}
 }
 
-// concatenate an array to an output string with a given separator
+// LdapArrayToStr concatenates an array to an output string with a given separator
 func LdapArrayToStr(values []string, separator string) string {
 	var b bytes.Buffer
 	for i := range values {
@@ -79,7 +80,7 @@ func LdapArrayToStr(values []string, separator string) string {
 	}
 }
 
-// Returns the DN string based on a fully qualified domain name
+// GetBaseDN returns the DN string based on a fully qualified domain name
 func GetBaseDN(fqdn string) string {
 	parts := strings.Split(fqdn, ".")
 

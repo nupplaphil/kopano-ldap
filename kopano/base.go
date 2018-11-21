@@ -6,6 +6,7 @@ import (
 	"gopkg.in/ldap.v2"
 )
 
+// Connect creates a new LDAP client
 func Connect(host string, port int, fqdn, user, password string) (ldap.Client, error) {
 
 	baseDn := GetBaseDN(fqdn)
