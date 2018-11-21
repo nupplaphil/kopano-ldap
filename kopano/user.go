@@ -3,9 +3,7 @@ package kopano
 import (
 	"bytes"
 	"fmt"
-	"github.com/nupplaphil/kopano-ldap/lib/utils"
 	"gopkg.in/ldap.v2"
-	"log"
 	"os"
 	"text/tabwriter"
 )
@@ -19,7 +17,7 @@ type UserSettings struct {
 	Active   bool
 }
 
-func ListAll(client ldap.Client, baseDn string) {
+func ListAll(client ldap.Client, baseDn string) error {
 	defer client.Close()
 
 	searchRequest := ldap.NewSearchRequest(
@@ -32,7 +30,7 @@ func ListAll(client ldap.Client, baseDn string) {
 
 	sr, err := client.Search(searchRequest)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 5, 0, 1, ' ', tabwriter.DiscardEmptyColumns)
@@ -43,19 +41,21 @@ func ListAll(client ldap.Client, baseDn string) {
 
 		b.WriteString(entry.GetAttributeValue("uid"))
 		b.WriteString("\t ")
-		b.WriteString(utils.LdapBoolToStr(entry.GetAttributeValue("kopanoAccount")))
+		b.WriteString(LdapBoolToStr(entry.GetAttributeValue("kopanoAccount")))
 		b.WriteString("\t ")
 		b.WriteString(entry.GetAttributeValue("cn"))
 		b.WriteString("\t ")
 		b.WriteString(entry.GetAttributeValue("mail"))
 		b.WriteString("\t ")
-		b.WriteString(utils.LdapArrayToStr(entry.GetAttributeValues("kopanoAliases"), ","))
+		b.WriteString(LdapArrayToStr(entry.GetAttributeValues("kopanoAliases"), ","))
 		fmt.Fprintln(w, b.String())
 	}
 	w.Flush()
+
+	return nil
 }
 
-func ListUser(client ldap.Client, baseDn, user string) {
+func ListUser(client ldap.Client, baseDn, user string) error {
 	defer client.Close()
 
 	searchRequest := ldap.NewSearchRequest(
@@ -68,12 +68,11 @@ func ListUser(client ldap.Client, baseDn, user string) {
 
 	sr, err := client.Search(searchRequest)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	if len(sr.Entries) != 1 {
-		log.Fatalf("No user with uid '" + user + "'")
-		os.Exit(1)
+		return fmt.Errorf("no user with uid '%q'", user)
 	}
 
 	entry := sr.Entries[0]
@@ -82,11 +81,13 @@ func ListUser(client ldap.Client, baseDn, user string) {
 	fmt.Fprintln(w, fmt.Sprintf("Name:\t %s", entry.GetAttributeValue("uid")))
 	fmt.Fprintln(w, fmt.Sprintf("Full name:\t %s", entry.GetAttributeValue("cn")))
 	fmt.Fprintln(w, fmt.Sprintf("Email address:\t %s", entry.GetAttributeValue("mail")))
-	fmt.Fprintln(w, fmt.Sprintf("Active:\t %s", utils.LdapBoolToStr(entry.GetAttributeValue("kopanoAccount"))))
-	fmt.Fprintln(w, fmt.Sprintf("Administrator:\t %s", utils.LdapBoolToStr(entry.GetAttributeValue("kopanoAdmin"))))
-	fmt.Fprintln(w, fmt.Sprintf("Features Enabled:\t %s", utils.LdapArrayToStr(entry.GetAttributeValues("kopanoEnabledFeatures"), ";")))
-	fmt.Fprintln(w, fmt.Sprintf("Features Disabled:\t %s", utils.LdapArrayToStr(entry.GetAttributeValues("kopanoDisabledFeatures"), ";")))
+	fmt.Fprintln(w, fmt.Sprintf("Active:\t %s", LdapBoolToStr(entry.GetAttributeValue("kopanoAccount"))))
+	fmt.Fprintln(w, fmt.Sprintf("Administrator:\t %s", LdapBoolToStr(entry.GetAttributeValue("kopanoAdmin"))))
+	fmt.Fprintln(w, fmt.Sprintf("Features Enabled:\t %s", LdapArrayToStr(entry.GetAttributeValues("kopanoEnabledFeatures"), ";")))
+	fmt.Fprintln(w, fmt.Sprintf("Features Disabled:\t %s", LdapArrayToStr(entry.GetAttributeValues("kopanoDisabledFeatures"), ";")))
 	w.Flush()
+
+	return nil
 }
 
 func NewUserSettings(user string) *UserSettings {
@@ -95,10 +96,13 @@ func NewUserSettings(user string) *UserSettings {
 	}
 }
 
-func Add(client ldap.Client, baseDn string, settings *UserSettings) {
+func Add(client ldap.Client, baseDn string, settings *UserSettings) error {
 	defer client.Close()
 
-	uidNumber, gidNumber := utils.GetNextIDs(client)
+	uidNumber, gidNumber, err := GetNextIDs(client, baseDn)
+	if err != nil {
+		return err
+	}
 
 	addRequest := ldap.NewAddRequest(fmt.Sprintf("uid=%s,%s", settings.User, baseDn))
 
@@ -122,21 +126,23 @@ func Add(client ldap.Client, baseDn string, settings *UserSettings) {
 	addRequest.Attribute("kopanoEnabledFeatures", []string{MOBILE})
 	addRequest.Attribute("kopanoDisabledFeatures", []string{IMAP, POP3})
 
-	err := client.Add(addRequest)
+	err = client.Add(addRequest)
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
+		return err
 	}
+
+	return nil
 }
 
-func Del(client ldap.Client, baseDn, user string) {
+func Del(client ldap.Client, baseDn, user string) error {
 	defer client.Close()
 
 	delRequest := ldap.NewDelRequest(fmt.Sprintf("uid=%s,%s", user, baseDn), nil)
 
 	err := client.Del(delRequest)
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
+		return err
 	}
+
+	return nil
 }

@@ -3,8 +3,6 @@ package kopano
 import (
 	"fmt"
 	"gopkg.in/ldap.v2"
-	"log"
-	"os"
 	"sort"
 )
 
@@ -14,11 +12,14 @@ const (
 	MOBILE = "mobile"
 )
 
-func AddUserFeatures(client ldap.Client, baseDn, user string, features []string) {
+func AddUserFeatures(client ldap.Client, baseDn, user string, features []string) error {
 	defer client.Close()
 
 	checkFeatures(features)
-	enabledFeatures, disabledFeatures := GetUserFeatures(client, baseDn, user)
+	enabledFeatures, disabledFeatures, err := GetUserFeatures(client, baseDn, user)
+	if err != nil {
+		return err
+	}
 
 	var modifyAddEnabled []string
 	var modifyRemDisabled []string
@@ -46,18 +47,22 @@ func AddUserFeatures(client ldap.Client, baseDn, user string, features []string)
 		modify.Add("kopanoEnabledFeatures", modifyAddEnabled)
 	}
 
-	err := client.Modify(modify)
+	err = client.Modify(modify)
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
+		return err
 	}
+
+	return nil
 }
 
-func RemoveUserFeatures(client ldap.Client, baseDn, user string, features []string) {
+func RemoveUserFeatures(client ldap.Client, baseDn, user string, features []string) error {
 	defer client.Close()
 
 	checkFeatures(features)
-	enabledFeatures, disabledFeatures := GetUserFeatures(client, baseDn, user)
+	enabledFeatures, disabledFeatures, err := GetUserFeatures(client, baseDn, user)
+	if err != nil {
+		return err
+	}
 
 	var modifyAddDisabled []string
 	var modifyRemEnabled []string
@@ -85,20 +90,22 @@ func RemoveUserFeatures(client ldap.Client, baseDn, user string, features []stri
 		modify.Add("kopanoDisabledFeatures", modifyAddDisabled)
 	}
 
-	err := client.Modify(modify)
+	err = client.Modify(modify)
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
+		return err
 	}
+
+	return nil
 }
 
-func checkFeatures(features []string) {
+func checkFeatures(features []string) error {
 	for i := range features {
 		if !isValid(features[i]) {
-			log.Fatal("Adding Feature '" + features[i] + "' is not valid")
-			os.Exit(1)
+			return fmt.Errorf("adding feature '%q' is not valid", features[i])
 		}
 	}
+
+	return nil
 }
 
 func isValid(feature string) bool {
@@ -107,7 +114,7 @@ func isValid(feature string) bool {
 		feature == MOBILE
 }
 
-func GetUserFeatures(client ldap.Client, baseDn, user string) ([]string, []string) {
+func GetUserFeatures(client ldap.Client, baseDn, user string) ([]string, []string, error) {
 
 	searchRequest := ldap.NewSearchRequest(
 		baseDn, // The base dn to search
@@ -119,17 +126,16 @@ func GetUserFeatures(client ldap.Client, baseDn, user string) ([]string, []strin
 
 	sr, err := client.Search(searchRequest)
 	if err != nil {
-		log.Fatal(err)
+		return nil, nil, err
 	}
 
 	if len(sr.Entries) != 1 {
-		log.Fatalf("No user with uid '" + user + "'")
-		os.Exit(1)
+		return nil, nil, fmt.Errorf("no user with uid '%q' found", user)
 	}
 
 	entry := sr.Entries[0]
 
-	return entry.GetAttributeValues("kopanoEnabledFeatures"), entry.GetAttributeValues("kopanoDisabledFeatures")
+	return entry.GetAttributeValues("kopanoEnabledFeatures"), entry.GetAttributeValues("kopanoDisabledFeatures"), nil
 }
 
 func findFeatureInFeatures(feature string, features []string) bool {

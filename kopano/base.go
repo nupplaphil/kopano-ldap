@@ -3,18 +3,16 @@ package kopano
 import (
 	"bytes"
 	"fmt"
-	"github.com/nupplaphil/kopano-ldap/lib/utils"
 	"gopkg.in/ldap.v2"
-	"log"
 )
 
-func Connect(host string, port int, fqdn, user, password string) ldap.Client {
+func Connect(host string, port int, fqdn, user, password string) (ldap.Client, error) {
 
-	baseDn := utils.GetBaseDN(fqdn)
+	baseDn := GetBaseDN(fqdn)
 
 	conn, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", host, port))
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	var b bytes.Buffer
@@ -25,8 +23,8 @@ func Connect(host string, port int, fqdn, user, password string) ldap.Client {
 
 	err = conn.Bind(b.String(), password)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	return conn
+	return conn, nil
 }

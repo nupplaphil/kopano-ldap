@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"github.com/nupplaphil/kopano-ldap/lib/kopano"
-	"github.com/nupplaphil/kopano-ldap/lib/utils"
+	"github.com/nupplaphil/kopano-ldap/kopano"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"log"
 	"os"
 )
 
@@ -47,17 +47,34 @@ func runUser(flags *pflag.FlagSet, args []string) {
 }
 
 func listAllUser() {
-	host, port, fqdn, user, password := LdapFlags()
-	base := utils.GetBaseDN(fqdn)
+	ldapHost, ldapPort, ldapDomain, ldapUser, ldapPW := LdapFlags()
+	base := kopano.GetBaseDN(ldapDomain)
 
-	client := kopano.Connect(host, port, fqdn, user, password)
-	kopano.ListAll(client, base)
+	client, err := kopano.Connect(ldapHost, ldapPort, ldapDomain, ldapUser, ldapPW)
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
+
+	err = kopano.ListAll(client, base)
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
 }
 
 func listUser(user string) {
-	host, port, fqdn, ldap_user, password := LdapFlags()
-	baseDn := utils.GetBaseDN(fqdn)
+	ldapHost, ldapPort, ldapDomain, ldapUser, ldapPW := LdapFlags()
+	baseDn := kopano.GetBaseDN(ldapDomain)
 
-	client := kopano.Connect(host, port, fqdn, ldap_user, password)
-	kopano.ListUser(client, baseDn, user)
+	client, err := kopano.Connect(ldapHost, ldapPort, ldapDomain, ldapUser, ldapPW)
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
+	err = kopano.ListUser(client, baseDn, user)
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
 }
