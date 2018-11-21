@@ -59,9 +59,9 @@ func GetNextIDs(client ldap.Client, baseDn string) (int, int, error) {
 func LdapBoolToStr(value string) string {
 	if len(value) > 0 && value != "0" {
 		return "yes"
-	} else {
-		return "no"
 	}
+
+	return "no"
 }
 
 // LdapArrayToStr concatenates an array to an output string with a given separator
@@ -75,9 +75,9 @@ func LdapArrayToStr(values []string, separator string) string {
 	outputLen := len(output)
 	if outputLen > 1 {
 		return output[:outputLen-1-len(separator)]
-	} else {
-		return output
 	}
+
+	return output
 }
 
 // GetBaseDN returns the DN string based on a fully qualified domain name
@@ -100,7 +100,7 @@ func GetBaseDN(fqdn string) string {
 
 	if baseDnLen > 1 {
 		return baseDn[:baseDnLen-1]
-	} else {
-		return "<nil>"
 	}
+
+	return "<nil>"
 }

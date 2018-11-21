@@ -11,7 +11,7 @@ const (
 	IMAP = "imap"
 	// POP3 feature of Kopano
 	POP3 = "pop3"
-	// Mobile feature of Kopano
+	// MOBILE feature of Kopano
 	MOBILE = "mobile"
 )
 
@@ -163,7 +163,7 @@ func findFeatureInFeatures(feature string, features []string) bool {
 	i := sort.SearchStrings(features, feature)
 	if i < len(features) && features[i] == feature {
 		return true
-	} else {
-		return false
 	}
+
+	return false
 }
