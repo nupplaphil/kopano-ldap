@@ -157,6 +157,14 @@ func TestGetNextIDs(t *testing.T) {
 		client.On("Close").Once()
 
 		uid, gid, err := GetNextIDs(client, test.baseDn)
+
+		// TODO
+		// Dirty hack because "atoi.go" fallback "ParseInt()" doesn't properly
+		// set the function "Atoi" for fallback "ParseInt" function
+		if nerr, ok := err.(*strconv.NumError); ok {
+			nerr.Func = "Atoi"
+			err = nerr
+		}
 		assert.Equal(t, err, test.error)
 
 		if err == nil {
