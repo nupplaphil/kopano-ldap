@@ -12,7 +12,7 @@ type UserSettings struct {
 	User     string
 	Fullname string
 	Email    string
-	Aliase   []string
+	Aliases  []string
 	Password string
 	Active   bool
 }
@@ -34,7 +34,7 @@ func ListAll(client ldap.Client, baseDn string) error {
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 5, 0, 1, ' ', tabwriter.DiscardEmptyColumns)
-	fmt.Fprintln(w, "User\t Active\t Full Name\t E-Mail\t Aliase")
+	fmt.Fprintln(w, "User\t Active\t Full Name\t E-Mail\t aliases")
 	fmt.Fprintln(w, "----\t ------\t ---------\t ------\t ------")
 	for _, entry := range sr.Entries {
 		var b bytes.Buffer
@@ -122,7 +122,7 @@ func Add(client ldap.Client, baseDn string, settings *UserSettings) error {
 	addRequest.Attribute("uid", []string{fmt.Sprintf("%s", settings.User)})
 	addRequest.Attribute("uidNumber", []string{fmt.Sprintf("%d", uidNumber)})
 	addRequest.Attribute("gidNumber", []string{fmt.Sprintf("%d", gidNumber)})
-	addRequest.Attribute("kopanoAliases", settings.Aliase)
+	addRequest.Attribute("kopanoAliases", settings.Aliases)
 	addRequest.Attribute("kopanoEnabledFeatures", []string{MOBILE})
 	addRequest.Attribute("kopanoDisabledFeatures", []string{IMAP, POP3})
 

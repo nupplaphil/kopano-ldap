@@ -75,7 +75,7 @@ func runUserCreate(flags *pflag.FlagSet) {
 	userSettings.Active = active
 
 	if len(email) > 1 {
-		userSettings.Aliase = email[1:]
+		userSettings.Aliases = email[1:]
 	}
 
 	ldapHost, ldapPort, ldapDomain, ldapUser, ldapPW := LdapFlags()
