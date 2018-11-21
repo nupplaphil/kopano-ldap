@@ -72,7 +72,7 @@ func ListUser(client ldap.Client, baseDn, user string) error {
 	}
 
 	if len(sr.Entries) != 1 {
-		return fmt.Errorf("no user with uid '%q'", user)
+		return fmt.Errorf("no user with uid %q", user)
 	}
 
 	entry := sr.Entries[0]

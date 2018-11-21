@@ -133,7 +133,7 @@ func TestListUser(t *testing.T) {
 				Entries: nil,
 			},
 			nil,
-			fmt.Errorf("no user with uid 'philipp6'"),
+			fmt.Errorf("no user with uid \"philipp6\""),
 		},
 	}
 
