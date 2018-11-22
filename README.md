@@ -7,7 +7,7 @@
 This CLI is built for the User Management of [Kopano](https://kopano.io).
 It is inspired by `kopano-cli` and is written in [Go](https://golang.org).
 
-It should be user in combination of the `kopano-cli` tool, where `kopano-cli` lacks of LDAP support.
+It should be usef in combination with the general `kopano-cli` tool. `kopano-cli` starts, where `kopano-cli` stops with LDAP support.
 
 ## General usage of `kopano-ld` tool
 
