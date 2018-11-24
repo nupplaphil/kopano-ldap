@@ -3,9 +3,6 @@ package cmd
 import (
 	"github.com/nupplaphil/kopano-ldap/kopano"
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
-	"log"
-	"os"
 )
 
 // userdeleteCmd represents the userdelete command
@@ -13,8 +10,8 @@ var userdeleteCmd = &cobra.Command{
 	Use:   "delete",
 	Short: "Deleting an user for Kopano in LDAP.",
 	Long:  `Creating an user for Kopano in LDAP.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		runUserDelete(cmd.Flags())
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return runUserDelete(cmd)
 	},
 }
 
@@ -25,21 +22,25 @@ func init() {
 	userdeleteCmd.MarkFlagRequired("user")
 }
 
-func runUserDelete(flags *pflag.FlagSet) {
+func runUserDelete(cmd *cobra.Command) error {
 	ldapHost, ldapPort, ldapDomain, ldapUser, ldapPW := LdapFlags()
 	baseDn := kopano.GetBaseDN(ldapDomain)
 
 	client, err := kopano.Connect(ldapHost, ldapPort, ldapDomain, ldapUser, ldapPW)
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
+		return err
 	}
 
-	user, err := flags.GetString("user")
+	user, err := cmd.Flags().GetString("user")
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
+		return err
 	}
 
-	kopano.Del(client, baseDn, user)
+	if err := kopano.Del(client, baseDn, user); err != nil {
+		return err
+	} else {
+		cmd.Printf("user %q successfully deleted.", user)
+	}
+
+	return nil
 }

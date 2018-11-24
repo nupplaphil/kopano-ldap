@@ -1,0 +1,10 @@
+kopano-ld
+
+.idea
+.DS_Store
+
+# Test binary , build with `go test -c`
+*.test
+
+# destination folder of `gorelease`
+dist

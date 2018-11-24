@@ -2,11 +2,8 @@ package cmd
 
 import (
 	"github.com/nupplaphil/kopano-ldap/kopano"
-	"github.com/spf13/pflag"
-	"log"
-	"os"
-
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 // userfeatureremCmd represents the userfeaturerem command
@@ -14,8 +11,8 @@ var userfeatureremCmd = &cobra.Command{
 	Use:   "remove",
 	Short: "Removing a feature of an user in Kopano.",
 	Long:  `Removing a feature of an user in Kopano.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		runUserFeatureRemove(cmd.Flags())
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return runUserFeatureRemove(cmd.Flags())
 	},
 	TraverseChildren: true,
 }
@@ -30,27 +27,21 @@ func init() {
 	userfeatureaddCmd.MarkFlagRequired("user")
 }
 
-func runUserFeatureRemove(flags *pflag.FlagSet) {
-	user, err := flags.GetString("user")
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
-
-	features, err := flags.GetStringArray("feature")
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
+func runUserFeatureRemove(flags *pflag.FlagSet) error {
+	user, _ := flags.GetString("user")
+	features, _ := flags.GetStringArray("feature")
 
 	ldapHost, ldapPort, ldapDomain, ldapUser, ldapPW := LdapFlags()
 	baseDn := kopano.GetBaseDN(ldapDomain)
 
 	client, err := kopano.Connect(ldapHost, ldapPort, ldapDomain, ldapUser, ldapPW)
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
+		return err
 	}
 
-	kopano.RemoveUserFeatures(client, baseDn, user, features)
+	if err := kopano.RemoveUserFeatures(client, baseDn, user, features); err != nil {
+		return err
+	}
+
+	return nil
 }
