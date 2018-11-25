@@ -1,10 +1,5 @@
 language: go
 
-sudo: required
-
-services:
-  - docker
-
 matrix:
   include:
   - go: 1.9.4
