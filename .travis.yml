@@ -14,9 +14,6 @@ matrix:
   - go: tip
 
 before_install:
-  - docker pull nupplaphil/kopano-ldap
-  - docker run -d -p 127.0.0.1:389:389 nupplaphil/kopano-ldap
-  - docker ps -a
   - go get -t -v ./...
 
 script:

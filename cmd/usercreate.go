@@ -56,7 +56,7 @@ func runUserCreate(cmd *cobra.Command) error {
 		return err
 	}
 
-	if err := kopano.Add(client, baseDn, userSettings); err != nil {
+	if err := kopano.AddUser(client, baseDn, userSettings); err != nil {
 		return err
 	} else {
 		cmd.Printf("user %q successfully created\n", user)

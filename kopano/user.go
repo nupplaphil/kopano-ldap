@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"gopkg.in/ldap.v2"
-	"os"
+	"io"
 	"text/tabwriter"
 )
 
@@ -18,8 +18,8 @@ type UserSettings struct {
 	Active   bool
 }
 
-// ListAll lists all users for the given base DN
-func ListAll(client ldap.Client, baseDn string) error {
+// ListAllUsers lists all users for the given base DN to an output writer
+func ListAllUsers(client ldap.Client, baseDn string, writer io.Writer) error {
 	defer client.Close()
 
 	searchRequest := ldap.NewSearchRequest(
@@ -35,7 +35,7 @@ func ListAll(client ldap.Client, baseDn string) error {
 		return err
 	}
 
-	w := tabwriter.NewWriter(os.Stdout, 5, 0, 1, ' ', tabwriter.DiscardEmptyColumns)
+	w := tabwriter.NewWriter(writer, 5, 0, 1, ' ', tabwriter.DiscardEmptyColumns)
 	fmt.Fprintln(w, "User\t Active\t Full Name\t E-Mail\t aliases")
 	fmt.Fprintln(w, "----\t ------\t ---------\t ------\t ------")
 	for _, entry := range sr.Entries {
@@ -57,8 +57,8 @@ func ListAll(client ldap.Client, baseDn string) error {
 	return nil
 }
 
-// ListUser lists details of the given user for a given base DN
-func ListUser(client ldap.Client, baseDn, user string) error {
+// ListUser lists details of the given user for a given base DN to an output writer
+func ListUser(client ldap.Client, baseDn, user string, writer io.Writer) error {
 	defer client.Close()
 
 	searchRequest := ldap.NewSearchRequest(
@@ -80,7 +80,7 @@ func ListUser(client ldap.Client, baseDn, user string) error {
 
 	entry := sr.Entries[0]
 
-	w := tabwriter.NewWriter(os.Stdout, 25, 0, 1, ' ', 0)
+	w := tabwriter.NewWriter(writer, 25, 0, 1, ' ', 0)
 	fmt.Fprintln(w, fmt.Sprintf("Name:\t %s", entry.GetAttributeValue("uid")))
 	fmt.Fprintln(w, fmt.Sprintf("Full name:\t %s", entry.GetAttributeValue("cn")))
 	fmt.Fprintln(w, fmt.Sprintf("Email address:\t %s", entry.GetAttributeValue("mail")))
@@ -100,11 +100,11 @@ func NewUserSettings(user string) *UserSettings {
 	}
 }
 
-// Add creates a new user with the given settings
-func Add(client ldap.Client, baseDn string, settings *UserSettings) error {
+// AddUser creates a new user with the given settings
+func AddUser(client ldap.Client, baseDn string, settings *UserSettings) error {
 	defer client.Close()
 
-	uidNumber, gidNumber, err := GetNextIDs(client, baseDn)
+	uidNumber, err := GetNextUserID(client, baseDn)
 	if err != nil {
 		return err
 	}
@@ -126,7 +126,6 @@ func Add(client ldap.Client, baseDn string, settings *UserSettings) error {
 	addRequest.Attribute("sn", []string{fmt.Sprintf("%s", settings.Fullname)})
 	addRequest.Attribute("uid", []string{fmt.Sprintf("%s", settings.User)})
 	addRequest.Attribute("uidNumber", []string{fmt.Sprintf("%d", uidNumber)})
-	addRequest.Attribute("gidNumber", []string{fmt.Sprintf("%d", gidNumber)})
 	addRequest.Attribute("kopanoAliases", settings.Aliases)
 	addRequest.Attribute("kopanoEnabledFeatures", []string{MOBILE})
 	addRequest.Attribute("kopanoDisabledFeatures", []string{IMAP, POP3})
@@ -139,8 +138,8 @@ func Add(client ldap.Client, baseDn string, settings *UserSettings) error {
 	return nil
 }
 
-// Del deletes an user
-func Del(client ldap.Client, baseDn, user string) error {
+// DelUser deletes an user
+func DelUser(client ldap.Client, baseDn, user string) error {
 	defer client.Close()
 
 	delRequest := ldap.NewDelRequest(fmt.Sprintf("uid=%s,%s", user, baseDn), nil)

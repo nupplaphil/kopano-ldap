@@ -31,12 +31,9 @@ func runUserDelete(cmd *cobra.Command) error {
 		return err
 	}
 
-	user, err := cmd.Flags().GetString("user")
-	if err != nil {
-		return err
-	}
+	user, _ := cmd.Flags().GetString("user")
 
-	if err := kopano.Del(client, baseDn, user); err != nil {
+	if err := kopano.DelUser(client, baseDn, user); err != nil {
 		return err
 	} else {
 		cmd.Printf("user %q successfully deleted.", user)
