@@ -5,10 +5,11 @@ import (
 	"github.com/magiconair/properties/assert"
 	"github.com/nupplaphil/kopano-ldap/mocks"
 	"gopkg.in/ldap.v2"
+	"os"
 	"testing"
 )
 
-func TestListAll(t *testing.T) {
+func TestListAllUser(t *testing.T) {
 	tests := map[string]struct {
 		baseDn  string
 		entries map[string][]string
@@ -74,7 +75,7 @@ func TestListAll(t *testing.T) {
 		client.On("Search", &searchRequest).Return(&searchResult, test.error).Once()
 		client.On("Close").Once()
 
-		err := ListAll(client, test.baseDn)
+		err := ListAllUsers(client, test.baseDn, os.Stdout)
 		assert.Equal(t, err, test.error)
 	}
 }
@@ -154,12 +155,12 @@ func TestListUser(t *testing.T) {
 		client.On("Search", &searchRequest).Return(&test.result, test.searchErr).Once()
 		client.On("Close").Once()
 
-		err := ListUser(client, test.baseDn, test.user)
+		err := ListUser(client, test.baseDn, test.user, os.Stdout)
 		assert.Equal(t, err, test.error)
 	}
 }
 
-func TestAdd(t *testing.T) {
+func TestAddUser(t *testing.T) {
 	tests := map[string]struct {
 		baseDn    string
 		user      string
@@ -238,7 +239,6 @@ func TestAdd(t *testing.T) {
 		addRequest.Attribute("sn", []string{fmt.Sprintf("%s", test.fullname)})
 		addRequest.Attribute("uid", []string{fmt.Sprintf("%s", test.user)})
 		addRequest.Attribute("uidNumber", []string{fmt.Sprintf("%d", 1)})
-		addRequest.Attribute("gidNumber", []string{fmt.Sprintf("%d", 1)})
 		addRequest.Attribute("kopanoAliases", test.aliases)
 		addRequest.Attribute("kopanoEnabledFeatures", []string{MOBILE})
 		addRequest.Attribute("kopanoDisabledFeatures", []string{IMAP, POP3})
@@ -251,14 +251,13 @@ func TestAdd(t *testing.T) {
 			TimeLimit:    0,
 			TypesOnly:    false,
 			Filter:       "(&(objectClass=posixAccount))",
-			Attributes:   []string{"uidNumber", "gidNumber"},
+			Attributes:   []string{"uidNumber"},
 			Controls:     nil,
 		}
 
 		searchResult := ldap.SearchResult{
 			Entries: []*ldap.Entry{ldap.NewEntry(test.baseDn, map[string][]string{
 				"uidNumber": {"0"},
-				"gidNumber": {"0"},
 			}),
 			},
 			Referrals: nil,
@@ -270,12 +269,12 @@ func TestAdd(t *testing.T) {
 		client.On("Add", &addRequest).Return(test.addErr).Once()
 		client.On("Close").Once()
 
-		err := Add(client, test.baseDn, settings)
+		err := AddUser(client, test.baseDn, settings)
 		assert.Equal(t, err, test.error)
 	}
 }
 
-func TestDel(t *testing.T) {
+func TestDelUser(t *testing.T) {
 	tests := map[string]struct {
 		baseDn   string
 		user     string
@@ -302,7 +301,7 @@ func TestDel(t *testing.T) {
 		client.On("Del", &delRequest).Return(test.delError).Once()
 		client.On("Close").Once()
 
-		err := Del(client, test.baseDn, test.user)
+		err := DelUser(client, test.baseDn, test.user)
 		assert.Equal(t, err, test.delError)
 	}
 }

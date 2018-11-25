@@ -7,19 +7,19 @@ import (
 	"strings"
 )
 
-// GetNextIDs returns the next valid UID or GID for the given base DN
-func GetNextIDs(client ldap.Client, baseDn string) (int, int, error) {
+// GetNextUserID returns the next valid UID for the given base DN
+func GetNextUserID(client ldap.Client, baseDn string) (int, error) {
 	searchRequest := ldap.NewSearchRequest(
 		baseDn,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		"(&(objectClass=posixAccount))",
-		[]string{"uidNumber", "gidNumber"},
+		[]string{"uidNumber"},
 		nil,
 	)
 
 	sr, err := client.Search(searchRequest)
 	if err != nil {
-		return -1, -1, err
+		return -1, err
 	}
 
 	uidNumber := 0
@@ -27,7 +27,7 @@ func GetNextIDs(client ldap.Client, baseDn string) (int, int, error) {
 		uidNumTemp, err := strconv.Atoi(entry.GetAttributeValue("uidNumber"))
 
 		if err != nil {
-			return -1, -1, err
+			return -1, err
 		}
 
 		if uidNumTemp > uidNumber {
@@ -36,12 +36,30 @@ func GetNextIDs(client ldap.Client, baseDn string) (int, int, error) {
 	}
 	uidNumber++
 
+	return uidNumber, nil
+}
+
+// GetNextGroupID returns the next valid GID for the given base DN
+func GetNextGroupID(client ldap.Client, baseDn string) (int, error) {
+	searchRequest := ldap.NewSearchRequest(
+		baseDn,
+		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
+		"(&(objectClass=posixGroup))",
+		[]string{"gidNumber"},
+		nil,
+	)
+
+	sr, err := client.Search(searchRequest)
+	if err != nil {
+		return -1, err
+	}
+
 	gidNumber := 0
 	for _, entry := range sr.Entries {
 		gidNumTemp, err := strconv.Atoi(entry.GetAttributeValue("gidNumber"))
 
 		if err != nil {
-			return -1, -1, err
+			return -1, err
 		}
 
 		if gidNumTemp > gidNumber {
@@ -50,7 +68,7 @@ func GetNextIDs(client ldap.Client, baseDn string) (int, int, error) {
 	}
 	gidNumber++
 
-	return uidNumber, gidNumber, nil
+	return gidNumber, nil
 }
 
 // LdapBoolToStr returns either "yes" or "no"

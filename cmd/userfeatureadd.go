@@ -4,8 +4,6 @@ import (
 	"github.com/nupplaphil/kopano-ldap/kopano"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"log"
-	"os"
 )
 
 // userfeatureaddCmd represents the userfeatureadd command
@@ -13,8 +11,8 @@ var userfeatureaddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Adding a new feature to an user in Kopano.",
 	Long:  `Adding a new feature to an user in Kopano.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		runUserFeatureAdd(cmd.Flags())
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return runUserFeatureAdd(cmd.Flags())
 	},
 }
 
@@ -28,27 +26,21 @@ func init() {
 	userfeatureaddCmd.MarkFlagRequired("user")
 }
 
-func runUserFeatureAdd(flags *pflag.FlagSet) {
-	user, err := flags.GetString("user")
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
-
-	features, err := flags.GetStringArray("feature")
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
+func runUserFeatureAdd(flags *pflag.FlagSet) error {
+	user, _ := flags.GetString("user")
+	features, _ := flags.GetStringArray("feature")
 
 	ldapHost, ldapPort, ldapDomain, ldapUser, ldapPW := LdapFlags()
 	baseDn := kopano.GetBaseDN(ldapDomain)
 
 	client, err := kopano.Connect(ldapHost, ldapPort, ldapDomain, ldapUser, ldapPW)
 	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
+		return err
 	}
 
-	kopano.AddUserFeatures(client, baseDn, user, features)
+	if err := kopano.AddUserFeatures(client, baseDn, user, features); err != nil {
+		return err
+	}
+
+	return nil
 }

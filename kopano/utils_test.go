@@ -81,54 +81,38 @@ func TestGetBaseDN(t *testing.T) {
 	}
 }
 
-func TestGetNextIDs(t *testing.T) {
+func TestGetNextUserAndGroupID(t *testing.T) {
 	tests := map[string]struct {
 		baseDn    string
-		uid       string
-		gid       string
+		id        string
 		searchErr error
 		error     error
 	}{
 		"testNormal": {
 			"example.org",
 			"1",
-			"2",
 			nil,
 			nil,
 		},
 		"testTest0": {
 			"example.org",
 			"0",
-			"1",
 			nil,
 			nil,
 		},
 		"testNegSearch": {
 			"example.",
 			"-1",
-			"-2",
 			fmt.Errorf("an expected error"),
 			fmt.Errorf("an expected error"),
 		},
 		"testNegCastUid": {
 			"example.",
 			"bla",
-			"-3",
 			nil,
 			&strconv.NumError{
 				Func: "Atoi",
 				Num:  "bla",
-				Err:  errors.New("invalid syntax"),
-			},
-		},
-		"testNegCastGid": {
-			"example.",
-			"-4",
-			"blub",
-			nil,
-			&strconv.NumError{
-				Func: "Atoi",
-				Num:  "blub",
 				Err:  errors.New("invalid syntax"),
 			},
 		},
@@ -143,14 +127,13 @@ func TestGetNextIDs(t *testing.T) {
 			TimeLimit:    0,
 			TypesOnly:    false,
 			Filter:       "(&(objectClass=posixAccount))",
-			Attributes:   []string{"uidNumber", "gidNumber"},
+			Attributes:   []string{"uidNumber"},
 			Controls:     nil,
 		}
 
 		searchResult := ldap.SearchResult{
 			Entries: []*ldap.Entry{ldap.NewEntry("test", map[string][]string{
-				"uidNumber": {test.uid},
-				"gidNumber": {test.gid},
+				"uidNumber": {test.id},
 			}),
 			},
 			Referrals: nil,
@@ -161,7 +144,7 @@ func TestGetNextIDs(t *testing.T) {
 		client.On("Search", &searchRequest).Return(&searchResult, test.searchErr).Once()
 		client.On("Close").Once()
 
-		uid, gid, err := GetNextIDs(client, test.baseDn)
+		uid, err := GetNextUserID(client, test.baseDn)
 
 		// TODO
 		// Dirty hack because "atoi.go" fallback "ParseInt()" doesn't properly
@@ -173,10 +156,48 @@ func TestGetNextIDs(t *testing.T) {
 		assert.Equal(t, err, test.error)
 
 		if err == nil {
-			assertUid, _ := strconv.Atoi(test.uid)
+			assertUid, _ := strconv.Atoi(test.id)
 			assert.Equal(t, uid, assertUid+1)
-			assertGid, _ := strconv.Atoi(test.gid)
-			assert.Equal(t, gid, assertGid+1)
+		}
+
+		searchRequest = ldap.SearchRequest{
+			BaseDN:       test.baseDn,
+			Scope:        ldap.ScopeWholeSubtree,
+			DerefAliases: ldap.NeverDerefAliases,
+			SizeLimit:    0,
+			TimeLimit:    0,
+			TypesOnly:    false,
+			Filter:       "(&(objectClass=posixGroup))",
+			Attributes:   []string{"gidNumber"},
+			Controls:     nil,
+		}
+
+		searchResult = ldap.SearchResult{
+			Entries: []*ldap.Entry{ldap.NewEntry("test", map[string][]string{
+				"gidNumber": {test.id},
+			}),
+			},
+			Referrals: nil,
+			Controls:  nil,
+		}
+
+		client.On("Search", &searchRequest).Return(&searchResult, test.searchErr).Once()
+		client.On("Close").Once()
+
+		uid, err = GetNextGroupID(client, test.baseDn)
+
+		// TODO
+		// Dirty hack because "atoi.go" fallback "ParseInt()" doesn't properly
+		// set the function "Atoi" for fallback "ParseInt" function
+		if nerr, ok := err.(*strconv.NumError); ok {
+			nerr.Func = "Atoi"
+			err = nerr
+		}
+		assert.Equal(t, err, test.error)
+
+		if err == nil {
+			assertUid, _ := strconv.Atoi(test.id)
+			assert.Equal(t, uid, assertUid+1)
 		}
 	}
 }

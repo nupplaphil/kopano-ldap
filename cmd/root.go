@@ -10,6 +10,7 @@ import (
 )
 
 var cfgFile string
+var versionStr string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -18,11 +19,15 @@ var rootCmd = &cobra.Command{
 	Long: `The kopano-ld is an administration tool for managing user and groups in LDAP.
 
 The tool can be used to get more information about users and groups too.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		runRoot(cmd)
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
+func Execute(version string) {
+	versionStr = version
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -45,6 +50,8 @@ func init() {
 	viper.BindPFlag("domain", rootCmd.PersistentFlags().Lookup("domain"))
 	viper.BindPFlag("admin_user", rootCmd.PersistentFlags().Lookup("ldapuser"))
 	viper.BindPFlag("admin_password", rootCmd.PersistentFlags().Lookup("ldappass"))
+
+	rootCmd.Flags().BoolP("version", "v", false, "Printing out the current version")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -86,4 +93,14 @@ func LdapFlags() (string, int, string, string, string) {
 	ldapPW := viper.GetString("admin_password")
 
 	return ldapHost, ldapPort, ldapDomain, ldapUser, ldapPW
+}
+
+func runRoot(cmd *cobra.Command) {
+	versionFlag, _ := cmd.Flags().GetBool("version")
+
+	if versionFlag {
+		cmd.Println(versionStr)
+	} else {
+		cmd.Help()
+	}
 }
