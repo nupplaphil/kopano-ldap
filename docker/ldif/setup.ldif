@@ -1,19 +1,29 @@
-dn: ou=Addresslists,{{ LDAP_BASE_DN }}
+# users
+dn: ou=users,{{ LDAP_BASE_DN }}
 objectClass: organizationalUnit
 objectClass: top
-ou: Addresslists
+ou: users
 
-dn: ou=People,{{ LDAP_BASE_DN }}
+# groups
+dn: ou=groups,{{ LDAP_BASE_DN }}
 objectClass: organizationalUnit
 objectClass: top
-ou: People
+ou: groups
 
-dn: ou=Groups,{{ LDAP_BASE_DN }}
+# addresslists
+dn: ou=addresslists,{{ LDAP_BASE_DN }}
 objectClass: organizationalUnit
 objectClass: top
-ou: Groups
+ou: addresslists
 
-dn: ou=Contacts,{{ LDAP_BASE_DN }}
+# people
+dn: ou=people,{{ LDAP_BASE_DN }}
 objectClass: organizationalUnit
 objectClass: top
-ou: Contacts
+ou: people
+
+# contacts
+dn: ou=contacts,{{ LDAP_BASE_DN }}
+objectClass: organizationalUnit
+objectClass: top
+ou: contacts
