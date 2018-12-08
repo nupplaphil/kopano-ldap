@@ -4,13 +4,14 @@ COPY kopano-ld.go .
 COPY cmd/*.go ./cmd/
 COPY kopano/*.go ./kopano/
 RUN go get -t -v ./...
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o kopano-ld .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="-w -s" -o kopano-ld .
 
-FROM osixia/openldap
+FROM fbartels/openldap:1.2.3
 MAINTAINER Philipp Holzer <admin@philipp.info>
 
 COPY --from=builder /go/src/github.com/nupplaphil/kopano-ldap/kopano-ld /usr/bin/
 
-ADD docker/schema/*.schema /container/service/slapd/assets/config/bootstrap/schema
-ADD docker/ldif/*.ldif /container/service/slapd/assets/config/bootstrap/ldif
+ADD bootstrap /container/service/slapd/assets/config/bootstrap
 ADD docker/environment /container/environment/01-custom
+RUN rm /container/service/slapd/assets/config/bootstrap/schema/mmc/mail.schema
+RUN touch /etc/ldap/slapd.conf

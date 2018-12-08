@@ -10,6 +10,12 @@ objectClass: organizationalUnit
 objectClass: top
 ou: groups
 
+# resources
+dn: ou=resources,{{ LDAP_BASE_DN }}
+objectClass: organizationalUnit
+objectClass: top
+ou: resources
+
 # addresslists
 dn: ou=addresslists,{{ LDAP_BASE_DN }}
 objectClass: organizationalUnit
